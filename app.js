@@ -13,9 +13,23 @@ const periodLabel = document.getElementById("periodLabel");
 const dayCardTemplate = document.getElementById("dayCardTemplate");
 const SpeechRecognitionApi = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 
+function getDefaultDate() {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  
+  // If Saturday (6) or Sunday (0), get next Monday
+  if (dayOfWeek === 0) {
+    today.setDate(today.getDate() + 1);
+  } else if (dayOfWeek === 6) {
+    today.setDate(today.getDate() + 2);
+  }
+  
+  return getDateKey(today);
+}
+
 const initialState = {
-  view: "day",
-  selectedDate: getDateKey(new Date()),
+  view: "week",
+  selectedDate: null, // Will be set in loadState()
   notesByDate: {}
 };
 
@@ -351,11 +365,24 @@ function setTasks(dateKey, tasks) {
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { ...initialState };
+    if (!raw) {
+      return {
+        view: "week",
+        selectedDate: getDefaultDate(),
+        notesByDate: {}
+      };
+    }
     const parsed = JSON.parse(raw);
-    return sanitizeState(parsed);
+    const state = sanitizeState(parsed);
+    // Always check if today is a weekend and adjust selected date
+    state.selectedDate = getDefaultDate();
+    return state;
   } catch {
-    return { ...initialState };
+    return {
+      view: "week",
+      selectedDate: getDefaultDate(),
+      notesByDate: {}
+    };
   }
 }
 
