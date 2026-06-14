@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nikhil's Tasklist Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-shapes" aria-hidden="true">
+      <span class="shape shape-a"></span>
+      <span class="shape shape-b"></span>
+      <span class="shape shape-c"></span>
+    </div>
+
+    <main class="app-shell">
+      <header class="top-bar">
+        <div class="brand-block">
+          <div class="brand-mark" aria-hidden="true">N</div>
+          <div>
+            <p class="kicker">Task Planning Studio Design by Nikhil R</p>
+            <h1>Tasklist Studio</h1>
+            <p id="todayLabel" class="today-label"></p>
+            <p id="periodLabel" class="period-label"></p>
+          </div>
+        </div>
+        <div class="right-controls">
+          <div class="header-nav" aria-label="Date controls">
+            <label for="datePicker" class="jump-label">Jump to date</label>
+            <button id="prevBtn" class="nav-btn" type="button">Previous</button>
+            <div class="date-pick-wrap">
+              <input id="datePicker" type="date" />
+            </div>
+            <button id="nextBtn" class="nav-btn" type="button">Next</button>
+          </div>
+          <div class="top-actions">
+            <button id="dayViewBtn" class="view-btn" type="button">📅 Day</button>
+            <button id="weekViewBtn" class="view-btn active" type="button">📆 Week</button>
+            <button id="monthViewBtn" class="view-btn" type="button">📋 Month</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="summary-strip" aria-label="Open task summary">
+        <article class="summary-card">
+          <p class="summary-kicker">Today</p>
+          <h2 id="todayOpenHeading" class="summary-heading"></h2>
+          <ul id="todayOpenList" class="summary-list"></ul>
+        </article>
+        <article class="summary-card">
+          <p class="summary-kicker">Tomorrow</p>
+          <h2 id="tomorrowOpenHeading" class="summary-heading"></h2>
+          <ul id="tomorrowOpenList" class="summary-list"></ul>
+        </article>
+      </section>
+
+      <section id="board" class="board"></section>
+
+      <footer class="footer">
+        <p>
+          💾 Saved to local PC only. Your data is safe with you and not shared with anyone.
+        </p>
+      </footer>
+    </main>
+
+    <template id="dayCardTemplate">
+      <article class="sticky-card" data-date="">
+        <header class="card-header">
+          <h2></h2>
+          <span class="task-count"></span>
+        </header>
+
+        <div class="add-task-row">
+          <input type="text" class="task-input" placeholder="Add task..." maxlength="120" />
+          <button class="add-task-btn" type="button">Add</button>
+          <button class="voice-btn" type="button" title="Add task by voice" aria-label="Add task by voice">🎤</button>
+        </div>
+
+        <p class="voice-status" aria-live="polite"></p>
+
+        <ul class="task-list" aria-live="polite"></ul>
+      </article>
+    </template>
+
+    <script src="github-storage.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
