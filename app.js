@@ -216,6 +216,8 @@ function renderWeekCards(selectedDateKey) {
 function renderDayCard(dateKey) {
   const card = dayCardTemplate.content.firstElementChild.cloneNode(true);
   card.dataset.date = dateKey;
+  const dateObj = fromDateKey(dateKey);
+  card.classList.add(`note-tone-${getNoteToneIndex(dateObj)}`);
 
   const h2 = card.querySelector("h2");
   const taskCount = card.querySelector(".task-count");
@@ -225,7 +227,6 @@ function renderDayCard(dateKey) {
   const voiceStatus = card.querySelector(".voice-status");
   const taskList = card.querySelector(".task-list");
 
-  const dateObj = fromDateKey(dateKey);
   const tasks = getTasks(dateKey);
   h2.textContent = formatCardDate(dateObj);
   const openCount = tasks.filter((task) => !task.done).length;
@@ -292,6 +293,14 @@ function renderDayCard(dateKey) {
   });
 
   board.appendChild(card);
+}
+
+function getNoteToneIndex(dateObj) {
+  // Color depends on absolute calendar day, not card position.
+  const dayNumber = Math.floor(
+    Date.UTC(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()) / 86400000
+  );
+  return ((dayNumber % 5) + 5) % 5 + 1;
 }
 
 function renderMonthGrid(selectedDateKey) {
