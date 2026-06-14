@@ -10,6 +10,10 @@ const nextBtn = document.getElementById("nextBtn");
 const datePicker = document.getElementById("datePicker");
 const todayLabel = document.getElementById("todayLabel");
 const periodLabel = document.getElementById("periodLabel");
+const todayOpenHeading = document.getElementById("todayOpenHeading");
+const tomorrowOpenHeading = document.getElementById("tomorrowOpenHeading");
+const todayOpenList = document.getElementById("todayOpenList");
+const tomorrowOpenList = document.getElementById("tomorrowOpenList");
 const dayCardTemplate = document.getElementById("dayCardTemplate");
 const SpeechRecognitionApi = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 
@@ -35,9 +39,16 @@ const initialState = {
 
 let state = loadState();
 let syncChannel = null;
+let githubReady = false;
 
-function init() {
+async function init() {
   todayLabel.textContent = `Today: ${formatLongDate(new Date())}`;
+  
+  // Initialize GitHub if available
+  if (typeof initializeGitHub !== 'undefined') {
+    githubReady = await initializeGitHub();
+  }
+  
   bindUi();
   initRealtimeSync();
   render();
@@ -111,8 +122,14 @@ function initRealtimeSync() {
   });
 }
 
-function persistAndRender() {
+async function persistAndRender() {
   saveState();
+  
+  // Save preferences to GitHub if ready
+  if (githubReady && typeof saveUserPreferencesToGitHub !== 'undefined') {
+    await saveUserPreferencesToGitHub(state.view, state.selectedDate);
+  }
+  
   if (syncChannel) {
     syncChannel.postMessage({
       type: "state-update",
@@ -143,6 +160,46 @@ function render() {
     board.classList.add("month");
     renderMonthGrid(state.selectedDate);
   }
+
+  renderOpenTaskSummary();
+}
+
+function renderOpenTaskSummary() {
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  renderSummaryList(todayOpenHeading, todayOpenList, today, getOpenTasksForDate(today));
+  renderSummaryList(tomorrowOpenHeading, tomorrowOpenList, tomorrow, getOpenTasksForDate(tomorrow));
+}
+
+function renderSummaryList(headingEl, listEl, date, tasks) {
+  headingEl.textContent = formatLongDate(date);
+  listEl.innerHTML = "";
+  listEl.classList.toggle("empty", tasks.length === 0);
+
+  if (tasks.length === 0) {
+    const item = document.createElement("li");
+    item.textContent = "No open tasks.";
+    listEl.appendChild(item);
+    return;
+  }
+
+  tasks.slice(0, 5).forEach((task) => {
+    const item = document.createElement("li");
+    item.textContent = task.text;
+    listEl.appendChild(item);
+  });
+
+  if (tasks.length > 5) {
+    const more = document.createElement("li");
+    more.textContent = `+${tasks.length - 5} more open task${tasks.length - 5 === 1 ? "" : "s"}`;
+    listEl.appendChild(more);
+  }
+}
+
+function getOpenTasksForDate(date) {
+  return getTasks(getDateKey(date)).filter((task) => !task.done);
 }
 
 function renderWeekCards(selectedDateKey) {
@@ -307,7 +364,7 @@ function bindVoiceInput({ input, voiceBtn, voiceStatus, addTask }) {
   const stopListeningUi = (message) => {
     listening = false;
     voiceBtn.classList.remove("listening");
-    voiceBtn.textContent = "Voice";
+    voiceBtn.textContent = "🎤";
     if (message) voiceStatus.textContent = message;
   };
 
@@ -326,7 +383,7 @@ function bindVoiceInput({ input, voiceBtn, voiceStatus, addTask }) {
     recognition.onstart = () => {
       listening = true;
       voiceBtn.classList.add("listening");
-      voiceBtn.textContent = "Stop";
+      voiceBtn.textContent = "◼";
       voiceStatus.textContent = "Listening. Speak your task now.";
     };
 
@@ -417,8 +474,15 @@ function sanitizeState(raw) {
   };
 }
 
-function saveState() {
+async function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  
+  // Also save all tasks to GitHub if ready
+  if (githubReady && typeof saveTasksToGitHub !== 'undefined') {
+    for (const [dateKey, tasks] of Object.entries(state.notesByDate)) {
+      await saveTasksToGitHub(dateKey, tasks);
+    }
+  }
 }
 
 function getDateKey(date) {
@@ -454,11 +518,14 @@ function formatLongDate(date) {
 }
 
 function formatCardDate(date) {
-  return new Intl.DateTimeFormat(undefined, {
-    weekday: "short",
+  const weekday = new Intl.DateTimeFormat(undefined, {
+    weekday: "long"
+  }).format(date);
+  const monthDay = new Intl.DateTimeFormat(undefined, {
     month: "short",
     day: "numeric"
   }).format(date);
+  return `${weekday}\n${monthDay}`;
 }
 
 function formatMonthHeading(date) {

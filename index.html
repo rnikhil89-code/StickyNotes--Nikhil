@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Daily Sticky Board</title>
+    <title>Nikhil's Tasklist Studio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -11,9 +11,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+  </head>
   <body>
     <div class="bg-shapes" aria-hidden="true">
       <span class="shape shape-a"></span>
@@ -23,33 +21,50 @@
 
     <main class="app-shell">
       <header class="top-bar">
-        <div>
-          <p class="kicker">Focus Planner</p>
-          <h1>Daily Sticky Board</h1>
-          <p id="todayLabel" class="today-label"></p>
-          <p id="periodLabel" class="period-label"></p>
+        <div class="brand-block">
+          <div class="brand-mark" aria-hidden="true">N</div>
+          <div>
+            <p class="kicker">Task Planning Studio Design by Nikhil R</p>
+            <h1>Tasklist Studio</h1>
+            <p id="todayLabel" class="today-label"></p>
+            <p id="periodLabel" class="period-label"></p>
+          </div>
         </div>
-        <div class="top-actions">
-          <button id="dayViewBtn" class="view-btn" type="button">📅 Day</button>
-          <button id="weekViewBtn" class="view-btn active" type="button">📆 Week</button>
-          <button id="monthViewBtn" class="view-btn" type="button">📋 Month</button>
+        <div class="right-controls">
+          <div class="header-nav" aria-label="Date controls">
+            <button id="prevBtn" class="nav-btn" type="button">Previous</button>
+            <div class="date-pick-wrap">
+              <label for="datePicker">Jump to date</label>
+              <input id="datePicker" type="date" />
+            </div>
+            <button id="nextBtn" class="nav-btn" type="button">Next</button>
+          </div>
+          <div class="top-actions">
+            <button id="dayViewBtn" class="view-btn" type="button">📅 Day</button>
+            <button id="weekViewBtn" class="view-btn active" type="button">📆 Week</button>
+            <button id="monthViewBtn" class="view-btn" type="button">📋 Month</button>
+          </div>
         </div>
       </header>
 
-      <section class="controls" aria-label="Date controls">
-        <button id="prevBtn" class="nav-btn" type="button">Previous</button>
-        <div class="date-pick-wrap">
-          <label for="datePicker">Jump to date</label>
-          <input id="datePicker" type="date" />
-        </div>
-        <button id="nextBtn" class="nav-btn" type="button">Next</button>
+      <section class="summary-strip" aria-label="Open task summary">
+        <article class="summary-card">
+          <p class="summary-kicker">Today</p>
+          <h2 id="todayOpenHeading" class="summary-heading"></h2>
+          <ul id="todayOpenList" class="summary-list"></ul>
+        </article>
+        <article class="summary-card">
+          <p class="summary-kicker">Tomorrow</p>
+          <h2 id="tomorrowOpenHeading" class="summary-heading"></h2>
+          <ul id="tomorrowOpenList" class="summary-list"></ul>
+        </article>
       </section>
 
       <section id="board" class="board"></section>
 
       <footer class="footer">
         <p>
-          💾 Tasks saved to cloud repository. Real-time sync across all devices. Supports weekday focus.
+          💾 Saved to local PC only.
         </p>
       </footer>
     </main>
@@ -64,7 +79,7 @@
         <div class="add-task-row">
           <input type="text" class="task-input" placeholder="Add task..." maxlength="120" />
           <button class="add-task-btn" type="button">Add</button>
-          <button class="voice-btn" type="button" title="Add task by voice">Voice</button>
+          <button class="voice-btn" type="button" title="Add task by voice" aria-label="Add task by voice">🎤</button>
         </div>
 
         <p class="voice-status" aria-live="polite"></p>
@@ -73,6 +88,7 @@
       </article>
     </template>
 
+    <script src="github-storage.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
